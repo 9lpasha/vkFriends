@@ -34,8 +34,6 @@
         }, 2);
         })
     }).then(function(){
-	var audio = document.createElement('audio')
-	audio.src = 'samka.mp3'
 	document.body.appendChild(audio)
         audio.play()
         return new Promise(function(resolve, reject) {
