@@ -34,6 +34,8 @@
         }, 2);
         })
     }).then(function(){
+	var audio = new Audio('samka.mp3')
+        audio.play()
         return new Promise(function(resolve, reject) {
             VK.Api.call('friends.get', {order: 'random', v: "5.81", fields: "photo_200_orig, bdate"}, function(r){
                 if(r.error){
