@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lan = "eng">
+<head>
+	<meta charset="UTF-8">
+	<title>131313</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="container" id="cont">
+    <form id = "f2">
+        <div class="main">
+            Список твоих друзей:
+        </div>
+    </form>
+    <script src="https://vk.com/js/api/openapi.js?169" type="text/javascript"></script>
+
+    <script type="text/javascript">
+    
+    new Promise(function(resolve) {
+        if (document.readyState === 'complete') {
+            resolve();
+        } 
+        else {
+            window.onload = resolve;
+        }
+    }).then(function() {
+        return new Promise(function(resolve, reject) {
+            VK.init({
+            apiId: 7949870
+        });
+        VK.Auth.login(function(response) {
+            if (response.session) {
+                resolve(response);
+            } 
+        }, 2);
+        })
+    }).then(function(){
+        return new Promise(function(resolve, reject) {
+            VK.Api.call('friends.get', {order: 'random', v: "5.81", fields: "photo_200_orig, bdate"}, function(r){
+                if(r.error){
+                    reject(new Error(r.error.error_msg, 'ПИЗДА'));
+                }
+                else{
+                    var mas = r.response.items;
+                    resolve();
+                    var a;
+                    var friendListWithBdate = []
+                    //создание переменных времени сейчас
+                    DATA = new Date()
+                    var mont = DATA.getMonth() + 1;
+                    var date = DATA.getDate();
+                    var year = DATA.getFullYear();
+                    var correct_order = [];
+                    //отбор объектов с датой рождения
+                    for(var i = 0; i < mas.length; i++){
+                        if(mas[i].bdate){
+                            friendListWithBdate.push(mas[i])
+                        }
+                    }
+                    function get_year(a){
+                        let parts = a.split('.');
+                        return parseInt(parts[2]);
+                    }
+                    function get_mont(a){
+                        let parts = a.split('.');
+                        return parseInt(parts[1]);
+                    }
+                    function get_date(a){
+                        let parts = a.split('.');
+                        return parseInt(parts[0]);
+                    }
+                    function get_age(a){
+                        let number = 0
+                        number += year - get_year(a)
+                        return number
+                    }
+                    mas = friendListWithBdate;
+                    console.log(mas)
+                    //сортировка по дате рождения
+                    for(var i = 0; i < mas.length - 1; i++){
+                        for(var j = i + 1; j < mas.length; j++){    
+                            if((get_mont(friendListWithBdate[i].bdate)) > get_mont(friendListWithBdate[j].bdate)){
+                                let a = 0
+                                a = friendListWithBdate[i]
+                                friendListWithBdate[i] = friendListWithBdate[j]
+                                friendListWithBdate[j] = a
+                            }
+                        }
+                    } 
+                    for(var i = 0; i < mas.length - 1; i++){
+                        for(var j = i + 1; j < mas.length; j++){    
+                            if((get_mont(friendListWithBdate[i].bdate)) == get_mont(friendListWithBdate[j].bdate) && (get_date(friendListWithBdate[i].bdate)) > get_date(friendListWithBdate[j].bdate)){
+                                let a = 0
+                                a = friendListWithBdate[i]
+                                friendListWithBdate[i] = friendListWithBdate[j]
+                                friendListWithBdate[j] = a
+                            }
+                        }
+                    } 
+                    //создание конечного массива - 1 часть
+                    for(i = 0; i < friendListWithBdate.length; i++){
+                        if((get_mont(friendListWithBdate[i].bdate) == mont) && (get_date(friendListWithBdate[i].bdate) >= date)){
+                            correct_order.push(friendListWithBdate[i])
+                        }
+                        else{
+                            if(get_mont(friendListWithBdate[i].bdate) > mont){
+                                correct_order.push(friendListWithBdate[i])
+                            }
+                        }
+                    }
+                    //создание конечного массива - 2 часть
+                    for(i = 0; i < friendListWithBdate.length; i++){
+                        if((get_mont(friendListWithBdate[i].bdate) == mont) && (get_date(friendListWithBdate[i].bdate) < date) || (get_mont(friendListWithBdate[i].bdate) < mont)){
+                            correct_order.push(friendListWithBdate[i])
+                        }
+                    }
+                    //вывод
+                    console.log(correct_order)
+                    for(var i = 0; i < correct_order.length; i++){
+                        var div = document.createElement('div')
+                        f2.appendChild(div)
+                    }
+                    div = f2.getElementsByTagName('div')
+                    for(i = 1; i < div.length - 1; i++){
+                        div[i].style.display = 'flex'
+                        div[i].style.justifyContent = 'start'
+                        div[i].style.alignItems = 'center'
+                        div[i].style.width = '600px'
+                        div[i].style.margin = '40px 0 0 100px'
+                        var photo = document.createElement('img')
+                        photo.src = correct_order[i].photo_200_orig
+                        photo.style.borderRadius = '20px';
+                        div[i].appendChild(photo)
+                        var age = ''
+                        if(get_year(correct_order[i].bdate)){
+                            age += 'Возраст - ' + get_age(correct_order[i].bdate)
+                        }
+                        var text = document.createElement('span')
+                        text.innerText += correct_order[i].first_name + ' ' + correct_order[i].last_name + '\n' + age + '\nДата рождения: ' + correct_order[i].bdate + '\n'
+                        div[i].appendChild(text)
+                    }
+                    cont.style.display = 'flex'
+                    cont.style.flexDirection = 'column'
+                    cont.style.alignItems = 'center'
+                }
+            })
+        });
+    }).catch(function(e) {
+        alert('Ошибка: ' + e.message);
+    });
+    </script>
+</body>
+</html>
